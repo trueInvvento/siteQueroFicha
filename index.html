@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QueroFicha — Facilite a compra de produtos em eventos</title>
+  <meta name="description" content="Compre no evento sem filas, sem dinheiro físico, sem complicação. QueroFicha digitaliza a experiência de compra em eventos com QR codes e pagamento online." />
+  <link rel="icon" href="assets/images/logo.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:       #5C4EE5;
+      --primary-light: #7F6DF2;
+      --primary-dark:  #4A3DB7;
+      --accent:        #FF6B6B;
+      --accent-pink:   #FF4081;
+      --bg-dark:       #121212;
+      --bg-light:      #F5F5F5;
+      --bg-white:      #FFFFFF;
+      --text-main:     #212121;
+      --text-secondary:#757575;
+      --border:        #E0E0E0;
+      --shadow:        0 4px 24px rgba(92,78,229,.12);
+      --shadow-card:   0 2px 16px rgba(0,0,0,.08);
+      --radius:        16px;
+      --radius-sm:     8px;
+      --transition:    .25s ease;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      color: var(--text-main);
+      background: var(--bg-white);
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    img { display: block; max-width: 100%; }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+
+    h1,h2,h3,h4 {
+      font-family: 'Space Mono', monospace;
+      line-height: 1.2;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    .section { padding: 96px 0; }
+    .section--alt { background: var(--bg-light); }
+
+    .section-label {
+      display: inline-block;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--primary);
+      background: rgba(92,78,229,.1);
+      border-radius: 100px;
+      padding: 6px 14px;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: clamp(28px, 5vw, 40px);
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .section-subtitle {
+      font-size: 18px;
+      color: var(--text-secondary);
+      max-width: 560px;
+    }
+
+    .section-header { margin-bottom: 56px; }
+    .section-header--center { text-align: center; }
+    .section-header--center .section-subtitle { margin: 0 auto; }
+
+    /* ===== BUTTONS ===== */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 100px;
+      font-family: 'Inter', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+    }
+
+    .btn:hover { transform: translateY(-2px); }
+
+    .btn--primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(92,78,229,.4);
+    }
+    .btn--primary:hover {
+      background: var(--primary-light);
+      box-shadow: 0 6px 28px rgba(92,78,229,.5);
+    }
+
+    .btn--accent {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(255,107,107,.4);
+    }
+    .btn--accent:hover {
+      background: #ff5252;
+      box-shadow: 0 6px 28px rgba(255,107,107,.5);
+    }
+
+    .btn--outline {
+      background: transparent;
+      color: #fff;
+      border: 2px solid rgba(255,255,255,.4);
+    }
+    .btn--outline:hover {
+      background: rgba(255,255,255,.1);
+      border-color: rgba(255,255,255,.7);
+    }
+
+    .btn--outline-dark {
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+    .btn--outline-dark:hover {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    /* ===== NAVBAR ===== */
+    .navbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: transparent;
+      transition: background var(--transition), box-shadow var(--transition);
+    }
+
+    .navbar.scrolled {
+      background: rgba(18,18,18,.95);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 2px 20px rgba(0,0,0,.3);
+    }
+
+    .navbar__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 72px;
+    }
+
+    .navbar__logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Space Mono', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .navbar__logo img { width: 36px; height: 36px; }
+
+    .navbar__links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .navbar__links a {
+      font-size: 15px;
+      font-weight: 500;
+      color: rgba(255,255,255,.75);
+      transition: color var(--transition);
+    }
+
+    .navbar__links a:hover { color: #fff; }
+
+    .navbar__cta { display: flex; gap: 12px; }
+
+    .navbar__toggle {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px;
+    }
+
+    .navbar__toggle span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: #fff;
+      border-radius: 2px;
+      transition: transform var(--transition), opacity var(--transition);
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      background: var(--bg-dark);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      padding-top: 72px;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 60% 40%, rgba(92,78,229,.25) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 80% 70%, rgba(255,107,107,.15) 0%, transparent 60%);
+      pointer-events: none;
+    }
+
+    .hero__inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 64px;
+      padding: 80px 0;
+    }
+
+    .hero__badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,107,107,.15);
+      border: 1px solid rgba(255,107,107,.3);
+      border-radius: 100px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 24px;
+    }
+
+    .hero__badge-dot {
+      width: 8px; height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: .6; transform: scale(1.3); }
+    }
+
+    .hero__title {
+      font-size: clamp(36px, 6vw, 60px);
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+
+    .hero__title span {
+      background: linear-gradient(135deg, var(--primary-light), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero__subtitle {
+      font-size: 20px;
+      color: rgba(255,255,255,.65);
+      margin-bottom: 40px;
+      max-width: 480px;
+    }
+
+    .hero__ctas {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 56px;
+    }
+
+    .hero__stats {
+      display: flex;
+      gap: 40px;
+      border-top: 1px solid rgba(255,255,255,.1);
+      padding-top: 32px;
+    }
+
+    .hero__stat-value {
+      font-family: 'Space Mono', monospace;
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .hero__stat-label {
+      font-size: 14px;
+      color: rgba(255,255,255,.5);
+      margin-top: 4px;
+    }
+
+    /* Phone mockup */
+    .hero__visual {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+
+    .phone-mockup {
+      position: relative;
+      width: 280px;
+      filter: drop-shadow(0 32px 64px rgba(92,78,229,.4));
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-14px); }
+    }
+
+    .phone-mockup__frame {
+      position: relative;
+      background: #1a1a2e;
+      border-radius: 44px;
+      padding: 14px;
+      border: 2px solid rgba(255,255,255,.12);
+    }
+
+    .phone-mockup__screen {
+      border-radius: 32px;
+      overflow: hidden;
+      aspect-ratio: 9/19.5;
+      background: #0d0d1a;
+    }
+
+    .phone-mockup__screen img {
+      width: 100%;
+      //height: 100%;
+      object-fit: cover;
+    }
+
+    .phone-mockup__notch {
+      position: absolute;
+      top: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90px;
+      height: 26px;
+      background: #1a1a2e;
+      border-radius: 0 0 20px 20px;
+      z-index: 2;
+    }
+
+    .hero__floating-card {
+      position: absolute;
+      background: rgba(255,255,255,.1);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+    }
+
+    .hero__floating-card--left {
+      left: -24px;
+      top: 30%;
+      animation: float 4s 1s ease-in-out infinite;
+    }
+
+    .hero__floating-card--right {
+      right: -24px;
+      bottom: 30%;
+      animation: float 4s .5s ease-in-out infinite;
+    }
+
+    .floating-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .floating-icon--green { background: rgba(76,175,80,.3); }
+    .floating-icon--purple { background: rgba(92,78,229,.4); }
+
+    .hero__screens-grid {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      opacity: .05;
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 8px;
+      overflow: hidden;
+    }
+
+    /* ===== COMO FUNCIONA ===== */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      position: relative;
+    }
+
+    .steps::before {
+      content: '';
+      position: absolute;
+      top: 48px;
+      left: 16.67%;
+      right: 16.67%;
+      height: 2px;
+      background: linear-gradient(90deg, var(--primary), var(--primary-light), var(--accent));
+      opacity: .3;
+    }
+
+    .step-card {
+      text-align: center;
+      padding: 40px 28px;
+      background: var(--bg-white);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+
+    .step-card:hover {
+      transform: translateY(-6px);
+      box-shadow: var(--shadow);
+    }
+
+    .step-number {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: #fff;
+      font-family: 'Space Mono', monospace;
+      font-size: 22px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 8px 24px rgba(92,78,229,.35);
+    }
+
+    .step-icon {
+      font-size: 36px;
+      margin-bottom: 16px;
+    }
+
+    .step-card h3 {
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+
+    .step-card p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.65;
+    }
+
+    /* ===== FEATURES ===== */
+    .features-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    .features-grid--reverse .features-visual { order: -1; }
+
+    .features-visual {
+      position: relative;
+    }
+
+    .features-screenshots {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .screenshot-card {
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,.15);
+      transition: transform var(--transition);
+    }
+
+    .screenshot-card:hover { transform: scale(1.03); }
+
+    .screenshot-card img {
+      width: 100%;
+      //height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .screenshot-card--tall {
+      grid-row: span 2;
+    }
+
+    .features-content .section-label { margin-bottom: 12px; }
+
+    .features-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 32px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px;
+      border-radius: var(--radius-sm);
+      transition: background var(--transition);
+    }
+
+    .feature-item:hover { background: var(--bg-light); }
+
+    .feature-icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(92,78,229,.15), rgba(92,78,229,.05));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .feature-icon--accent {
+      background: linear-gradient(135deg, rgba(255,107,107,.15), rgba(255,107,107,.05));
+    }
+
+    .feature-item h4 {
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .feature-item p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* ===== DEPOIMENTOS ===== */
+    .testimonials { background: var(--bg-dark); color: #fff; }
+    .testimonials .section-title { color: #fff; }
+    .testimonials .section-subtitle { color: rgba(255,255,255,.6); }
+
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      margin-bottom: 72px;
+    }
+
+    .stat-card {
+      text-align: center;
+      padding: 32px 20px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: var(--radius);
+    }
+
+    .stat-card__value {
+      font-family: 'Space Mono', monospace;
+      font-size: 36px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary-light), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-card__label {
+      font-size: 14px;
+      color: rgba(255,255,255,.55);
+      margin-top: 8px;
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .testimonial-card {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: border-color var(--transition), background var(--transition);
+    }
+
+    .testimonial-card:hover {
+      border-color: rgba(92,78,229,.4);
+      background: rgba(92,78,229,.1);
+    }
+
+    .testimonial-stars {
+      color: #FFD700;
+      font-size: 18px;
+      margin-bottom: 16px;
+      letter-spacing: 2px;
+    }
+
+    .testimonial-text {
+      font-size: 15px;
+      color: rgba(255,255,255,.75);
+      line-height: 1.7;
+      margin-bottom: 24px;
+      font-style: italic;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .testimonial-avatar {
+      width: 44px; height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .testimonial-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .testimonial-role {
+      font-size: 13px;
+      color: rgba(255,255,255,.45);
+    }
+
+    .testimonial-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      margin-left: 8px;
+    }
+
+    /* ===== DOWNLOAD ===== */
+    .download {
+      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--primary-light) 100%);
+      padding: 96px 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .download::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 60% 80% at 80% 50%, rgba(255,107,107,.2) 0%, transparent 60%);
+    }
+
+    .download__inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .download__title {
+      font-size: clamp(28px, 4vw, 44px);
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+
+    .download__subtitle {
+      font-size: 18px;
+      color: rgba(255,255,255,.75);
+      margin-bottom: 40px;
+    }
+
+    .download__buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 40px;
+    }
+
+    .store-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255,255,255,.12);
+      border: 1.5px solid rgba(255,255,255,.3);
+      border-radius: var(--radius-sm);
+      padding: 12px 20px;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: background var(--transition), transform var(--transition);
+    }
+
+    .store-btn:hover {
+      background: rgba(255,255,255,.2);
+      transform: translateY(-2px);
+    }
+
+    .store-btn__icon { font-size: 28px; }
+
+    .store-btn__text-small {
+      font-size: 11px;
+      opacity: .75;
+      display: block;
+    }
+
+    .store-btn__text-main {
+      font-size: 16px;
+      font-weight: 700;
+      display: block;
+    }
+
+    .download__qr {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .qr-placeholder {
+      width: 96px; height: 96px;
+      background: #fff;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .qr-placeholder svg { width: 72px; height: 72px; }
+
+    .download__qr-text {
+      font-size: 14px;
+      color: rgba(255,255,255,.7);
+      line-height: 1.5;
+    }
+
+    .download__visual {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      align-items: flex-end;
+    }
+
+    .download__phone {
+      width: 160px;
+      background: rgba(255,255,255,.1);
+      border: 1.5px solid rgba(255,255,255,.2);
+      border-radius: 32px;
+      padding: 10px;
+      overflow: hidden;
+    }
+
+    .download__phone img {
+      border-radius: 24px;
+      width: 100%;
+    }
+
+    .download__phone--tall { margin-bottom: -40px; }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      background: #0a0a0f;
+      color: rgba(255,255,255,.6);
+      padding: 64px 0 32px;
+    }
+
+    .footer__grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+
+    .footer__brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Space Mono', monospace;
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 16px;
+    }
+
+    .footer__brand-logo img { width: 32px; height: 32px; }
+
+    .footer__brand-desc {
+      font-size: 14px;
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+
+    .footer__socials {
+      display: flex;
+      gap: 12px;
+    }
+
+    .footer__social {
+      width: 38px; height: 38px;
+      border-radius: 8px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      color: rgba(255,255,255,.6);
+      transition: background var(--transition), color var(--transition);
+    }
+
+    .footer__social:hover {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .footer__col-title {
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: rgba(255,255,255,.35);
+      margin-bottom: 20px;
+    }
+
+    .footer__links {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .footer__links a {
+      font-size: 14px;
+      color: rgba(255,255,255,.55);
+      transition: color var(--transition);
+    }
+
+    .footer__links a:hover { color: #fff; }
+
+    .footer__bottom {
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding-top: 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .footer__bottom-links {
+      display: flex;
+      gap: 24px;
+    }
+
+    .footer__bottom-links a {
+      color: rgba(255,255,255,.4);
+      transition: color var(--transition);
+    }
+
+    .footer__bottom-links a:hover { color: rgba(255,255,255,.8); }
+
+    /* ===== SCROLL REVEAL ===== */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity .65s ease, transform .65s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    .reveal--delay-1 { transition-delay: .1s; }
+    .reveal--delay-2 { transition-delay: .2s; }
+    .reveal--delay-3 { transition-delay: .3s; }
+    .reveal--delay-4 { transition-delay: .4s; }
+
+    /* ===== MOBILE MENU ===== */
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 99;
+      background: rgba(10,10,15,.97);
+      backdrop-filter: blur(16px);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 32px;
+    }
+
+    .mobile-menu.open { display: flex; }
+
+    .mobile-menu a {
+      font-family: 'Space Mono', monospace;
+      font-size: 22px;
+      color: #fff;
+      opacity: .8;
+      transition: opacity var(--transition);
+    }
+
+    .mobile-menu a:hover { opacity: 1; }
+
+    .mobile-menu__close {
+      position: absolute;
+      top: 24px; right: 24px;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 28px;
+      cursor: pointer;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+      .hero__inner { grid-template-columns: 1fr; text-align: center; gap: 48px; }
+      .hero__subtitle { margin: 0 auto 40px; }
+      .hero__ctas { justify-content: center; }
+      .hero__stats { justify-content: center; }
+      .hero__visual { display: none; }
+
+      .steps { grid-template-columns: 1fr; max-width: 440px; margin: 0 auto; }
+      .steps::before { display: none; }
+
+      .features-grid { grid-template-columns: 1fr; }
+      .features-grid--reverse .features-visual { order: 0; }
+      .features-screenshots { max-width: 480px; margin: 0 auto; }
+
+      .stats-bar { grid-template-columns: repeat(2,1fr); }
+      .testimonials-grid { grid-template-columns: 1fr; max-width: 480px; margin: 0 auto; }
+
+      .download__inner { grid-template-columns: 1fr; text-align: center; }
+      .download__buttons { justify-content: center; }
+      .download__qr { justify-content: center; }
+      .download__visual { display: none; }
+
+      .footer__grid { grid-template-columns: 1fr 1fr; }
+      .footer__brand { grid-column: span 2; }
+
+      .navbar__links, .navbar__cta { display: none; }
+      .navbar__toggle { display: flex; }
+    }
+
+    @media (max-width: 640px) {
+      .section { padding: 64px 0; }
+      .stats-bar { grid-template-columns: 1fr 1fr; }
+      .footer__grid { grid-template-columns: 1fr; }
+      .footer__brand { grid-column: span 1; }
+      .footer__bottom { flex-direction: column; gap: 16px; text-align: center; }
+      .hero__stats { flex-wrap: wrap; gap: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <div class="navbar__inner">
+        <a href="#" class="navbar__logo">
+          <img src="assets/images/logo.svg" alt="QueroFicha logo" />
+          QueroFicha
+        </a>
+
+        <ul class="navbar__links">
+          <li><a href="#como-funciona">Como Funciona</a></li>
+          <li><a href="#clientes">Para Clientes</a></li>
+          <li><a href="#comerciantes">Para Comerciantes</a></li>
+          <li><a href="#depoimentos">Depoimentos</a></li>
+        </ul>
+
+        <div class="navbar__cta">
+          <a href="#download" class="btn btn--outline" style="padding:10px 20px;font-size:14px;">Baixar App</a>
+          <a href="#comerciantes" class="btn btn--accent" style="padding:10px 20px;font-size:14px;">Cadastrar Evento</a>
+        </div>
+
+        <button class="navbar__toggle" id="menuToggle" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <button class="mobile-menu__close" id="menuClose">✕</button>
+    <a href="#como-funciona" class="menu-link">Como Funciona</a>
+    <a href="#clientes" class="menu-link">Para Clientes</a>
+    <a href="#comerciantes" class="menu-link">Para Comerciantes</a>
+    <a href="#depoimentos" class="menu-link">Depoimentos</a>
+    <a href="#download" class="btn btn--primary">Baixar o App</a>
+    <a href="#comerciantes" class="btn btn--accent">Cadastrar Evento</a>
+  </div>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero" id="hero">
+    <div class="container">
+      <div class="hero__inner">
+        <div class="hero__content">
+          <div class="hero__badge">
+            <span class="hero__badge-dot"></span>
+            Disponível no Brasil
+          </div>
+
+          <h1 class="hero__title">
+            Facilite a compra<br />
+            de produtos em<br />
+            <span>eventos</span>
+          </h1>
+
+          <p class="hero__subtitle">
+            Para quem vai curtir e para quem vai vender. Compre no evento sem filas, sem dinheiro físico, sem complicação.
+          </p>
+
+          <div class="hero__ctas">
+            <a href="#download" class="btn btn--primary">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+              Baixar o App
+            </a>
+            <a href="#comerciantes" class="btn btn--outline">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+              Cadastrar meu evento
+            </a>
+          </div>
+
+          <div class="hero__stats">
+            <div>
+              <div class="hero__stat-value">500+</div>
+              <div class="hero__stat-label">Eventos realizados</div>
+            </div>
+            <div>
+              <div class="hero__stat-value">50k+</div>
+              <div class="hero__stat-label">Pedidos processados</div>
+            </div>
+            <div>
+              <div class="hero__stat-value">4.9★</div>
+              <div class="hero__stat-label">Avaliação no app</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero__visual">
+          <div class="phone-mockup">
+            <div class="phone-mockup__frame">
+              <div class="phone-mockup__notch"></div>
+              <div class="phone-mockup__screen">
+                <img src="screenshots/Cliente%20lista%20eventos.jpg" alt="Tela do app QueroFicha" loading="eager" />
+              </div>
+            </div>
+          </div>
+
+          <div class="hero__floating-card hero__floating-card--left">
+            <div class="floating-icon floating-icon--green">✅</div>
+            Pedido confirmado!
+          </div>
+
+          <div class="hero__floating-card hero__floating-card--right">
+            <div class="floating-icon floating-icon--purple">📱</div>
+            QR Code gerado
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== COMO FUNCIONA ===== -->
+  <section class="section" id="como-funciona">
+    <div class="container">
+      <div class="section-header section-header--center reveal">
+        <span class="section-label">Como Funciona</span>
+        <h2 class="section-title">Simples do início ao fim</h2>
+        <p class="section-subtitle">Em três passos você já está comprando — ou vendendo — no evento.</p>
+      </div>
+
+      <div class="steps">
+        <div class="step-card reveal reveal--delay-1">
+          <div class="step-number">1</div>
+          <div class="step-icon">📍</div>
+          <h3>Encontre o evento</h3>
+          <p>Descubra eventos perto de você no app ou escaneie o QR Code do evento para entrar no cardápio instantaneamente.</p>
+        </div>
+
+        <div class="step-card reveal reveal--delay-2">
+          <div class="step-number">2</div>
+          <div class="step-icon">🛒</div>
+          <h3>Escolha os produtos</h3>
+          <p>Navegue pelo cardápio digital com fotos, preços e promoções. Adicione itens ao carrinho com um toque.</p>
+        </div>
+
+        <div class="step-card reveal reveal--delay-3">
+          <div class="step-number">3</div>
+          <div class="step-icon">⚡</div>
+          <h3>Pague e retire</h3>
+          <p>Pague com PIX, cartão ou saldo pré-carregado. Receba o QR Code e retire seu pedido sem fila.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PARA CLIENTES ===== -->
+  <section class="section section--alt" id="clientes">
+    <div class="container">
+      <div class="features-grid">
+        <div class="features-content reveal">
+          <span class="section-label">Para Clientes</span>
+          <h2 class="section-title">Curta o evento.<br/>Esqueça as filas.</h2>
+          <p class="section-subtitle">Tudo que você precisa para aproveitar ao máximo qualquer evento, direto no seu celular.</p>
+
+          <ul class="features-list">
+            <li class="feature-item">
+              <div class="feature-icon">🗺️</div>
+              <div>
+                <h4>Descubra eventos perto de você</h4>
+                <p>Explore uma lista de eventos em sua cidade e encontre o próximo rolê com facilidade.</p>
+              </div>
+            </li>
+            <li class="feature-item">
+              <div class="feature-icon">📋</div>
+              <div>
+                <h4>Cardápio digital com fotos</h4>
+                <p>Veja os produtos com imagens, descrições detalhadas e preços antes de comprar.</p>
+              </div>
+            </li>
+            <li class="feature-item">
+              <div class="feature-icon">💳</div>
+              <div>
+                <h4>Pague com PIX, cartão ou saldo</h4>
+                <p>Diversas formas de pagamento online. Sem precisar de dinheiro físico no bolso.</p>
+              </div>
+            </li>
+            <li class="feature-item">
+              <div class="feature-icon">🎁</div>
+              <div>
+                <h4>Presenteie amigos com itens</h4>
+                <p>Mande itens do cardápio para amigos que estão no evento como presente.</p>
+              </div>
+            </li>
+            <li class="feature-item">
+              <div class="feature-icon">📊</div>
+              <div>
+                <h4>Histórico completo de compras</h4>
+                <p>Acesse todo o seu histórico de pedidos e compras em eventos anteriores.</p>
+              </div>
+            </li>
+          </ul>
+
+          <div style="margin-top:32px;">
+            <a href="#download" class="btn btn--primary">
+              Baixar o App Grátis
+            </a>
+          </div>
+        </div>
+
+        <div class="features-visual reveal reveal--delay-1">
+          <div class="features-screenshots">
+            <div class="screenshot-card">
+              <img src="screenshots/Cliente%20lista%20eventos.jpg" alt="Lista de eventos" loading="lazy" />
+            </div>
+            <div class="screenshot-card">
+              <img src="screenshots/Cliente%20lista%20fichas.jpg" alt="Lista de fichas" loading="lazy" />
+            </div>
+            <div class="screenshot-card">
+              <img src="screenshots/Cliente%20apresenta%20ficha.jpg" alt="Apresentação de ficha" loading="lazy" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PARA COMERCIANTES ===== -->
+  <section class="section" id="comerciantes">
+    <div class="container">
+      <div class="features-grid features-grid--reverse">
+        <div class="features-content reveal">
+          <span class="section-label" style="background:rgba(255,107,107,.1);color:var(--accent);">Para Comerciantes</span>
+          <h2 class="section-title">Venda mais.<br/>Gerencie menos.</h2>
+          <p class="section-subtitle">Ferramentas completas para organizar seu evento e maximizar suas vendas.</p>
+
+          <ul class="features-list">
+            <li class="feature-item">
+              <div class="feature-icon feature-icon--accent">🎪</div>
+              <div>
+                <h4>Crie e gerencie eventos facilmente</h4>
+                <p>Configure seu evento em minutos com todas as informações e detalhes necessários.</p>
+              </div>
+            </li>
+            <li class="feature-item">
+              <div class="feature-icon feature-icon--accent">📸</div>
+              <div>
+                <h4>Cardápios com fotos e descontos</h4>
+                <p>Monte cardápios atrativos com imagens, preços e promoções para aumentar as vendas.</p>
+              </div>
+            </li>
+            <li class="feature-item">
+              <div class="feature-icon feature-icon--accent">📷</div>
+              <div>
+                <h4>Valide pedidos pelo QR Code</h4>
+                <p>Escaneie o QR Code do cliente para confirmar e entregar pedidos de forma rápida.</p>
+              </div>
+            </li>
+            <li class="feature-item">
+              <div class="feature-icon feature-icon--accent">📈</div>
+              <div>
+                <h4>Dashboard com relatórios em tempo real</h4>
+                <p>Monitore vendas, produtos mais populares e faturamento em tempo real no evento.</p>
+              </div>
+            </li>
+            <li class="feature-item">
+              <div class="feature-icon feature-icon--accent">📤</div>
+              <div>
+                <h4>Exporte relatórios PDF ou CSV</h4>
+                <p>Baixe seus relatórios de vendas nos formatos que preferir para análise posterior.</p>
+              </div>
+            </li>
+            <li class="feature-item">
+              <div class="feature-icon feature-icon--accent">📣</div>
+              <div>
+                <h4>Compartilhe nas redes sociais</h4>
+                <p>Divulgue seu evento diretamente pelo app e alcance mais clientes.</p>
+              </div>
+            </li>
+          </ul>
+
+          <div style="margin-top:32px;">
+            <a href="#download" class="btn btn--accent">
+              Cadastrar meu evento
+            </a>
+          </div>
+        </div>
+
+        <div class="features-visual reveal reveal--delay-1">
+          <div class="features-screenshots">
+            <div class="screenshot-card">
+              <img src="screenshots/Comerciante%20Gerencia%20Evento.jpg" alt="Gerenciar evento" loading="lazy" />
+            </div>
+            <div class="screenshot-card">
+              <img src="screenshots/Dashboard%20do%20Comerciante.jpg" alt="Dashboard" loading="lazy" />
+            </div>
+            <div class="screenshot-card">
+              <img src="screenshots/Relat%C3%B3rios%20do%20Comerciante.jpg" alt="Relatórios" loading="lazy" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== DEPOIMENTOS ===== -->
+  <section class="section testimonials" id="depoimentos">
+    <div class="container">
+      <div class="section-header section-header--center reveal">
+        <span class="section-label" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.8);">Depoimentos</span>
+        <h2 class="section-title">Quem usa, aprova</h2>
+        <p class="section-subtitle">Clientes e comerciantes que transformaram a experiência de eventos com o QueroFicha.</p>
+      </div>
+
+      <div class="stats-bar reveal">
+        <div class="stat-card">
+          <div class="stat-card__value">500+</div>
+          <div class="stat-card__label">Eventos realizados</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__value">50k+</div>
+          <div class="stat-card__label">Pedidos processados</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__value">10k+</div>
+          <div class="stat-card__label">Clientes ativos</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card__value">4.9★</div>
+          <div class="stat-card__label">Avaliação média</div>
+        </div>
+      </div>
+
+      <div class="testimonials-grid">
+        <div class="testimonial-card reveal reveal--delay-1">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"Não preciso mais carregar dinheiro trocado no bolso. Chego no evento, abro o app, escolho o que quero e pronto. A fila ficou no passado!"</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar" style="background:linear-gradient(135deg,#5C4EE5,#7F6DF2);">A</div>
+            <div>
+              <div class="testimonial-name">Ana Lima
+                <span class="testimonial-badge" style="background:rgba(92,78,229,.2);color:#7F6DF2;">Cliente</span>
+              </div>
+              <div class="testimonial-role">Festival de Música, São Paulo</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card reveal reveal--delay-2">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"As vendas aumentaram 40% no nosso último evento. O dashboard em tempo real me deixou monitorar tudo sem sair do escritório. Incrível!"</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar" style="background:linear-gradient(135deg,#FF6B6B,#FF4081);">R</div>
+            <div>
+              <div class="testimonial-name">Rafael Costa
+                <span class="testimonial-badge" style="background:rgba(255,107,107,.2);color:#FF6B6B;">Comerciante</span>
+              </div>
+              <div class="testimonial-role">Bar & Petiscos, Belo Horizonte</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card reveal reveal--delay-3">
+          <div class="testimonial-stars">★★★★★</div>
+          <p class="testimonial-text">"Organizei minha festa junina com o QueroFicha pela primeira vez. Foi tão fácil que já estou planejando o próximo evento. A funcionalidade de compartilhamento é top!"</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar" style="background:linear-gradient(135deg,#4CAF50,#2E7D32);">M</div>
+            <div>
+              <div class="testimonial-name">Marina Santos
+                <span class="testimonial-badge" style="background:rgba(255,107,107,.2);color:#FF6B6B;">Comerciante</span>
+              </div>
+              <div class="testimonial-role">Eventos Culturais, Recife</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== DOWNLOAD ===== -->
+  <section class="download" id="download">
+    <div class="container">
+      <div class="download__inner">
+        <div>
+          <span class="section-label" style="background:rgba(255,255,255,.15);color:#fff;margin-bottom:20px;">Download Grátis</span>
+          <h2 class="download__title">Baixe o app e<br />comece agora</h2>
+          <p class="download__subtitle">Disponível para iOS e Android. Gratuito para clientes. Planos acessíveis para comerciantes.</p>
+
+          <div class="download__buttons">
+            <a href="#" class="store-btn">
+              <span class="store-btn__icon">🍎</span>
+              <div>
+                <span class="store-btn__text-small">Baixar na</span>
+                <span class="store-btn__text-main">App Store</span>
+              </div>
+            </a>
+            <a href="#" class="store-btn">
+              <span class="store-btn__icon">▶️</span>
+              <div>
+                <span class="store-btn__text-small">Disponível no</span>
+                <span class="store-btn__text-main">Google Play</span>
+              </div>
+            </a>
+          </div>
+
+          <div class="download__qr">
+            <div class="qr-placeholder">
+              <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="4" y="4" width="28" height="28" rx="4" fill="none" stroke="#121212" stroke-width="4"/>
+                <rect x="12" y="12" width="12" height="12" rx="2" fill="#5C4EE5"/>
+                <rect x="40" y="4" width="28" height="28" rx="4" fill="none" stroke="#121212" stroke-width="4"/>
+                <rect x="48" y="12" width="12" height="12" rx="2" fill="#5C4EE5"/>
+                <rect x="4" y="40" width="28" height="28" rx="4" fill="none" stroke="#121212" stroke-width="4"/>
+                <rect x="12" y="48" width="12" height="12" rx="2" fill="#5C4EE5"/>
+                <rect x="40" y="40" width="8" height="8" rx="2" fill="#FF6B6B"/>
+                <rect x="52" y="40" width="8" height="8" rx="2" fill="#FF6B6B"/>
+                <rect x="40" y="52" width="8" height="8" rx="2" fill="#FF6B6B"/>
+                <rect x="52" y="52" width="8" height="8" rx="2" fill="#5C4EE5"/>
+              </svg>
+            </div>
+            <p class="download__qr-text">
+              Aponte a câmera do celular para o QR Code e baixe o app diretamente.
+            </p>
+          </div>
+        </div>
+
+        <div class="download__visual">
+          <div class="download__phone">
+            <img src="screenshots/Login.jpg" alt="Tela de login" loading="lazy" />
+          </div>
+          <div class="download__phone download__phone--tall">
+            <img src="screenshots/Selecionar%20Perfil.jpg" alt="Selecionar perfil" loading="lazy" />
+          </div>
+          <div class="download__phone">
+            <img src="screenshots/Perfil%20do%20Usu%C3%A1rio.jpg" alt="Perfil do usuário" loading="lazy" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer__grid">
+        <div class="footer__brand">
+          <div class="footer__brand-logo">
+            <img src="assets/images/logo.svg" alt="QueroFicha" />
+            QueroFicha
+          </div>
+          <p class="footer__brand-desc">
+            Digitalizando a experiência de compra em eventos. Sem filas, sem dinheiro físico, sem complicação.
+          </p>
+          <div class="footer__socials">
+            <a href="#" class="footer__social" aria-label="Instagram">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+            </a>
+            <a href="#" class="footer__social" aria-label="Twitter / X">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <a href="#" class="footer__social" aria-label="LinkedIn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="4"/><line x1="8" y1="11" x2="8" y2="16"/><line x1="8" y1="8" x2="8" y2="8.01"/><line x1="12" y1="16" x2="12" y2="11"/><path d="M16 16v-3a2 2 0 0 0-4 0"/></svg>
+            </a>
+            <a href="#" class="footer__social" aria-label="WhatsApp">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer__col-title">Produto</h4>
+          <ul class="footer__links">
+            <li><a href="#como-funciona">Como Funciona</a></li>
+            <li><a href="#clientes">Para Clientes</a></li>
+            <li><a href="#comerciantes">Para Comerciantes</a></li>
+            <li><a href="#download">Download</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer__col-title">Empresa</h4>
+          <ul class="footer__links">
+            <li><a href="#">Sobre nós</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">Carreiras</a></li>
+            <li><a href="#">Imprensa</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer__col-title">Suporte</h4>
+          <ul class="footer__links">
+            <li><a href="#">Central de Ajuda</a></li>
+            <li><a href="#">Contato</a></li>
+            <li><a href="#">Termos de Uso</a></li>
+            <li><a href="#">Privacidade</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer__bottom">
+        <span>© 2026 QueroFicha. Todos os direitos reservados.</span>
+        <div class="footer__bottom-links">
+          <a href="#">Termos de Uso</a>
+          <a href="#">Política de Privacidade</a>
+          <a href="#">Cookies</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== JAVASCRIPT ===== -->
+  <script>
+    // Navbar scroll effect
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 40);
+    });
+
+    // Mobile menu
+    const menuToggle = document.getElementById('menuToggle');
+    const menuClose = document.getElementById('menuClose');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuLinks = document.querySelectorAll('.menu-link');
+
+    menuToggle.addEventListener('click', () => mobileMenu.classList.add('open'));
+    menuClose.addEventListener('click', () => mobileMenu.classList.remove('open'));
+    menuLinks.forEach(l => l.addEventListener('click', () => mobileMenu.classList.remove('open')));
+
+    // Scroll reveal
+    const revealEls = document.querySelectorAll('.reveal');
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    revealEls.forEach(el => revealObserver.observe(el));
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', (e) => {
+        const target = document.querySelector(anchor.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          const offset = 80;
+          const top = target.getBoundingClientRect().top + window.scrollY - offset;
+          window.scrollTo({ top, behavior: 'smooth' });
+        }
+      });
+    });
+
+    // Screenshot carousel in hero on mobile (auto-rotate)
+    const heroScreens = [
+      'screenshots/Cliente%20lista%20eventos.jpg',
+      'screenshots/Cliente%20lista%20fichas.jpg',
+      'screenshots/Cliente%20apresenta%20ficha.jpg',
+      'screenshots/Dashboard%20do%20Comerciante.jpg',
+    ];
+
+    let heroIdx = 0;
+    const heroImg = document.querySelector('.phone-mockup__screen img');
+    if (heroImg) {
+      setInterval(() => {
+        heroIdx = (heroIdx + 1) % heroScreens.length;
+        heroImg.style.opacity = '0';
+        heroImg.style.transition = 'opacity .4s';
+        setTimeout(() => {
+          heroImg.src = heroScreens[heroIdx];
+          heroImg.style.opacity = '1';
+        }, 400);
+      }, 3000);
+    }
+  </script>
+</body>
+</html>

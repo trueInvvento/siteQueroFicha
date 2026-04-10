@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="256" cy="256" r="240" fill="#FF6B6B"/>
+  
+  <!-- Ticket Shape -->
+  <path d="M160 160C160 142.327 174.327 128 192 128H320C337.673 128 352 142.327 352 160V352C352 369.673 337.673 384 320 384H192C174.327 384 160 369.673 160 352V160Z" fill="white"/>
+  
+  <!-- Ticket Perforations -->
+  <circle cx="192" cy="256" r="8" fill="#FF6B6B"/>
+  <circle cx="320" cy="256" r="8" fill="#FF6B6B"/>
+  
+  <!-- Q Letter -->
+  <path d="M224 224C224 208 236 196 252 196C268 196 280 208 280 224V288C280 304 268 316 252 316C236 316 224 304 224 288V224ZM252 212C244 212 240 216 240 224V288C240 296 244 300 252 300C260 300 264 296 264 288V224C264 216 260 212 252 212Z" fill="#FF6B6B"/>
+  
+  <!-- F Letter -->
+  <path d="M224 224H280V236H240V256H272V268H240V288H224V224Z" fill="#FF6B6B"/>
+</svg> 
