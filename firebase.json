@@ -1,0 +1,15 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "constants/**",
+      "*.plan.md",
+      "*.ts"
+    ],
+    "cleanUrls": true,
+    "trailingSlash": false
+  }
+}
